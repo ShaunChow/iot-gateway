@@ -1,5 +1,7 @@
 package com.shaun.SerialPortClient.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ghgande.j2mod.modbus.ModbusException;
 import com.ghgande.j2mod.modbus.io.ModbusSerialTransaction;
 import com.ghgande.j2mod.modbus.msg.ModbusRequest;
@@ -16,11 +18,19 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PreDestroy;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class J2modService {
 
     private static final Logger log = LoggerFactory.getLogger(J2modService.class);
+
+    public volatile String result = "";
+
+    private DecimalFormat twoPointReserve = new DecimalFormat("0.00");
+    private DecimalFormat threePointReserve = new DecimalFormat("0.000");
 
     @Autowired
     private SerialParameters serialParameters;
@@ -49,18 +59,25 @@ public class J2modService {
                 try {
                     Thread.sleep(3000);
                     // Query according to Meter Manual
-                    ReadMultipleRegistersRequest writeMultipleRegistersRequest = new ReadMultipleRegistersRequest(0, 2);
-                    writeMultipleRegistersRequest.setUnitID(1);
-                    writeMultipleRegistersRequest.setHeadless(true);
+                    ReadMultipleRegistersRequest request = new ReadMultipleRegistersRequest(0, 2);
+                    request.setUnitID(1);
+                    request.setHeadless(true);
 
-                    log.info("Request  Hex >> " + writeMultipleRegistersRequest.getHexMessage());
+                    log.info("Request  Hex >> " + request.getHexMessage());
+                    ModbusResponse response = getModbusSerialResponse(serialConnection, request);
+                    log.info("Response Hex >> " + response.getHexMessage());
 
-                    ModbusResponse writeMultipleRegistersResponse = getModbusSerialResponse(serialConnection,
-                            writeMultipleRegistersRequest);
+                    String dataStr = response.getHexMessage().replace(" ", "").substring(6);
+                    Map<String, String> resultMap = new HashMap<String, String>();
+                    resultMap.put("value1",
+                            threePointReserve.format(Integer.parseInt(dataStr.substring(0, 4), 16) / (float) 1000));
+                    resultMap.put("value2",
+                            twoPointReserve.format(Integer.parseInt(dataStr.substring(4), 16) / (float) 100));
+                    result = new ObjectMapper().writeValueAsString(resultMap);
 
-                    log.info("Response Hex >> " + writeMultipleRegistersResponse.getHexMessage());
+                    log.info("Response result >> " + result);
 
-                } catch (InterruptedException | ModbusException e) {
+                } catch (InterruptedException | ModbusException | JsonProcessingException e) {
                     log.error(e.getMessage());
                 }
             }
