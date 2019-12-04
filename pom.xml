@@ -24,9 +24,17 @@
 			<artifactId>spring-boot-starter</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.fazecast</groupId>
-			<artifactId>jSerialComm</artifactId>
-			<version>2.5.3</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+		<dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+        </dependency>
+		<dependency>
+    		<groupId>com.ghgande</groupId>
+    		<artifactId>j2mod</artifactId>
+    		<version>2.5.8</version>
 		</dependency>
 
 
@@ -51,5 +59,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>

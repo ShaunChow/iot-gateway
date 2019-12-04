@@ -1,0 +1,7 @@
+server:
+  port: 9999
+serialport:
+  name: COM5
+logging:
+  level:
+    com.ghgande.j2mod: debug
