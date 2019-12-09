@@ -37,7 +37,8 @@ public class J2modService {
 
     private static SerialConnection serialConnection;
 
-    public void start() {
+    public boolean start() {
+
         log.info("serial connecting...");
 
         serialConnection = new SerialConnection(serialParameters);
@@ -51,6 +52,8 @@ public class J2modService {
         log.info("serial connect success!");
 
         cardHeartBeat();
+
+        return true;
     }
 
     public void cardHeartBeat() {
@@ -72,7 +75,7 @@ public class J2modService {
                     resultMap.put("value1",
                             threePointReserve.format(Integer.parseInt(dataStr.substring(0, 4), 16) / (float) 1000));
                     resultMap.put("value2",
-                            twoPointReserve.format(Integer.parseInt(dataStr.substring(4), 16) / (float) 100));
+                            twoPointReserve.format(Integer.parseInt(dataStr.substring(4, 8), 16) / (float) 100));
                     result = new ObjectMapper().writeValueAsString(resultMap);
 
                     log.info("Response result >> " + result);
@@ -87,7 +90,11 @@ public class J2modService {
     @PreDestroy
     public void destroy() {
         log.info("destroy serial connecting...");
-        serialConnection.close();
+
+        if (null != serialConnection) {
+            serialConnection.close();
+        }
+
         log.info("destroy serial success!");
     }
 
