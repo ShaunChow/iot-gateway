@@ -42,7 +42,8 @@ public class ModbusDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
         resultMap.put("value1", threePointReserve.format(Integer.parseInt(dataStr.substring(0, 4), 16) / (float) 1000));
         resultMap.put("value2", twoPointReserve.format(Integer.parseInt(dataStr.substring(4, 8), 16) / (float) 100));
         try {
-            log.info("response result >> " + new ObjectMapper().writeValueAsString(resultMap));
+            log.info("response (" + x.getAddress().getHostAddress() + ":" + x.getPort() + ") result >> "
+                    + new ObjectMapper().writeValueAsString(resultMap));
         } catch (JsonProcessingException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -51,7 +52,10 @@ public class ModbusDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
 
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
-        super.userEventTriggered(ctx, evt);
+        String socketString = ctx.channel().remoteAddress().toString();
+
+        log.info("EventTriggered at :" + socketString);
+
         if (evt instanceof IdleStateEvent) {
             IdleStateEvent event = (IdleStateEvent) evt;
             if (event.state() == IdleState.WRITER_IDLE) {
@@ -60,6 +64,8 @@ public class ModbusDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
                         (byte) 0x00, (byte) 0x02, (byte) 0xC4, (byte) 0x0B }));
             }
         }
+
+        super.userEventTriggered(ctx, evt);
     }
 
     private String bytesToHex(byte[] bytes) {
