@@ -2,6 +2,7 @@ package com.shaun.SerialPortClient.config;
 
 import com.ghgande.j2mod.modbus.Modbus;
 import com.ghgande.j2mod.modbus.util.SerialParameters;
+import com.shaun.SerialPortClient.config.properties.SerialPortProperties;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,9 +10,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class J2modConfig {
 
-    private SerialPortConfig serialPortConfig;
+    private SerialPortProperties serialPortConfig;
 
-    public J2modConfig(SerialPortConfig serialPortConfig) {
+    public J2modConfig(SerialPortProperties serialPortConfig) {
         this.serialPortConfig = serialPortConfig;
     }
 

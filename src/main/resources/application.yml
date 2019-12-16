@@ -1,7 +1,22 @@
 server:
   port: 9999
+
 serialport:
   name: COM5
+
+tcp:
+  server:
+    port: 26
+  contractclients:
+    - ip: 10.252.31.144
+      port: 26
+      protocal: Modbus
+      heartbeat:
+        interval: 5
+        echohex: 010300000002C40B
+    
+
+    
 logging:
   level:
     com.ghgande.j2mod: debug
