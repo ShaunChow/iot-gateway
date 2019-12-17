@@ -7,6 +7,7 @@ import java.util.concurrent.Executors;
 import com.shaun.SerialPortClient.service.J2modService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,6 +48,15 @@ public class ModbusController {
         });
 
         return emitter;
+    }
+
+    @Autowired
+    private CacheManager cacheManager;
+
+    @GetMapping("/cache")
+    public Object getCahce() {
+        Object x= cacheManager.getCache("tcp_connection");
+        return x;
     }
 
 }
