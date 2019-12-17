@@ -20,14 +20,11 @@ public class BootTcpServer {
 
     private TcpServerProperties config;
 
-    private CacheManager cacheManager;
-
     private ChannelCacheService channelCacheService;
 
     public BootTcpServer(TcpServerProperties config, CacheManager cacheManager,
             ChannelCacheService channelCacheService) {
         this.config = config;
-        this.cacheManager = cacheManager;
         this.channelCacheService = channelCacheService;
     }
 
