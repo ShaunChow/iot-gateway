@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import com.shaun.SerialPortClient.config.properties.TcpServerProperties;
 import com.shaun.SerialPortClient.config.properties.TcpServerProperties.ContractClientsProperties;
+import com.shaun.SerialPortClient.service.ChannelCacheService;
 import com.shaun.SerialPortClient.service.handler.ModbusDecoderHandler;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
@@ -21,9 +22,13 @@ public class BootTcpServer {
 
     private CacheManager cacheManager;
 
-    public BootTcpServer(TcpServerProperties config, CacheManager cacheManager) {
+    private ChannelCacheService channelCacheService;
+
+    public BootTcpServer(TcpServerProperties config, CacheManager cacheManager,
+            ChannelCacheService channelCacheService) {
         this.config = config;
         this.cacheManager = cacheManager;
+        this.channelCacheService = channelCacheService;
     }
 
     public DisposableServer runTcpServer() {
@@ -37,16 +42,18 @@ public class BootTcpServer {
 
     public void registeredHandlerOnConnection(Connection conn) {
 
-        Optional<ContractClientsProperties> channalConfig = config.getContractclients().stream()
-                .filter(e -> ("/" + e.getIp() + ":" + e.getPort()).equals(conn.channel().remoteAddress().toString()))
-                .findFirst();
+        Optional<ContractClientsProperties> channalConfig = config.getContractclients().stream().filter(e -> {
+            if (("/" + e.getIp() + ":" + e.getPort()).equals(conn.channel().remoteAddress().toString()))
+                return true;
+            return conn.channel().remoteAddress().toString().indexOf(e.getIp()) > 0;
+        }).findFirst();
 
         if (channalConfig.isPresent()) {
 
             String key = channalConfig.get().getProtocal() + ":" + channalConfig.get().getIp() + ":"
                     + channalConfig.get().getPort();
 
-            cacheManager.getCache("tcp_connection").put(key, conn.channel());
+            channelCacheService.cache(key, conn.channel());
 
             conn.addHandler(new IdleStateHandler(0, channalConfig.get().getHeartbeat().getInterval().intValue(), 0));
 

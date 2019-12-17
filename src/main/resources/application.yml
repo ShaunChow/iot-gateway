@@ -8,11 +8,19 @@ tcp:
   server:
     port: 26
   contractclients:
+  
     - ip: 10.252.31.144
       port: 26
       protocal: Modbus
       heartbeat:
         interval: 5
+        echohex: 010300000002C40B
+
+    - ip: 10.252.31.145
+      port: 0
+      protocal: Modbus
+      heartbeat:
+        interval: 1
         echohex: 010300000002C40B
     
 

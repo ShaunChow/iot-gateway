@@ -15,23 +15,22 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class CacheConfig extends CachingConfigurerSupport {
 
-    @Bean
-    public CacheManager cacheManager(List<Cache> caches) {
-        SimpleCacheManager simpleCacheManager = new SimpleCacheManager();
-        simpleCacheManager.setCaches(caches);
-        return simpleCacheManager;
-    }
-
+	@Bean
+	public CacheManager cacheManager(List<Cache> caches) {
+		SimpleCacheManager simpleCacheManager = new SimpleCacheManager();
+		simpleCacheManager.setCaches(caches);
+		return simpleCacheManager;
+	}
 
 	@Bean("tcpConnection")
-	public ConcurrentMapCacheFactoryBean tcpConnection(){
+	public ConcurrentMapCacheFactoryBean tcpConnection() {
 		ConcurrentMapCacheFactoryBean tcpConnection = new ConcurrentMapCacheFactoryBean();
-		tcpConnection.setName("tcp_connection");	
+		tcpConnection.setName("tcp_connection");
 		return tcpConnection;
 	}
-	
+
 	@Bean("tcpResult")
-	public ConcurrentMapCacheFactoryBean tcpResult(){
+	public ConcurrentMapCacheFactoryBean tcpResult() {
 		ConcurrentMapCacheFactoryBean tcpResult = new ConcurrentMapCacheFactoryBean();
 		tcpResult.setName("tcp_result");
 		return tcpResult;
