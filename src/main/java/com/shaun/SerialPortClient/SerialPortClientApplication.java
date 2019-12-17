@@ -1,7 +1,5 @@
 package com.shaun.SerialPortClient;
 
-import com.shaun.SerialPortClient.config.properties.SerialPortProperties;
-import com.shaun.SerialPortClient.service.J2modService;
 import com.shaun.SerialPortClient.service.server.BootTcpServer;
 import com.shaun.SerialPortClient.service.server.BootUdpServer;
 
@@ -23,26 +21,26 @@ public class SerialPortClientApplication {
         return bootTcpServer.runTcpServer();
     }
 
-    // @Bean
-    // Connection udpServerRunner(BootUdpServer bootUdpServer) {
-    // return bootUdpServer.runUdpServer();
-    // }
+    @Bean
+    Connection udpServerRunner(BootUdpServer bootUdpServer) {
+        return bootUdpServer.runUdpServer();
+    }
 
     // @Bean
     // boolean startModbusListening(J2modService j2modService) {
 
-    // return j2modService.start();
+    //     return j2modService.start();
 
-    // // ModbusTCPMaster master = new ModbusTCPMaster("10.252.31.144", 26, true);
-    // // try {
-    // // master.connect();
-    // // while (true) {
-    // // Register[] resul = master.readMultipleRegisters(1, 0, 2);
-    // // }
-    // // } catch (Exception e) {
-    // // // TODO Auto-generated catch block
-    // // e.printStackTrace();
-    // // }s
+    //     // ModbusTCPMaster master = new ModbusTCPMaster("10.252.31.144", 26, true);
+    //     // try {
+    //     // master.connect();
+    //     // while (true) {
+    //     // Register[] resul = master.readMultipleRegisters(1, 0, 2);
+    //     // }
+    //     // } catch (Exception e) {
+    //     // // TODO Auto-generated catch block
+    //     // e.printStackTrace();
+    //     // }s
     // }
 
 }
