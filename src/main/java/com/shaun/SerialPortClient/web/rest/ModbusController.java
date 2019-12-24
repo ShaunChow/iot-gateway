@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.shaun.SerialPortClient.analysis.ModbusWaterQualifyAnalysis;
 import com.shaun.SerialPortClient.service.ChannelCacheService;
 import com.shaun.SerialPortClient.service.J2modService;
 
@@ -18,7 +19,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import io.netty.buffer.Unpooled;
 
 @RestController
-@RequestMapping("/sse/modbus")
+@RequestMapping("/modbus")
 public class ModbusController {
 
     @Autowired
@@ -27,7 +28,7 @@ public class ModbusController {
     @Autowired
     private ChannelCacheService channelCacheService;
 
-    @GetMapping()
+    @GetMapping("/sse")
     public ResponseBodyEmitter get() {
 
         final SseEmitter emitter = new SseEmitter();
@@ -53,14 +54,15 @@ public class ModbusController {
 
         return emitter;
     }
-    
-    @GetMapping("/cache")
-    public Object getCahce() {
-        channelCacheService.getCache("Modbus:10.252.31.144:26")
-                .writeAndFlush(Unpooled.buffer().writeBytes(new byte[] { (byte) 0x01, (byte) 0x03, (byte) 0x00,
-                        (byte) 0x00, (byte) 0x00, (byte) 0x02, (byte) 0xC4, (byte) 0x0B }));
 
-        return null;
+    @GetMapping()
+    public Object getCahce() {
+        // channelCacheService.getCache("Modbus:10.252.31.144:26")
+        // .writeAndFlush(Unpooled.buffer().writeBytes(new byte[] { (byte) 0x01, (byte)
+        // 0x03, (byte) 0x00,
+        // (byte) 0x00, (byte) 0x00, (byte) 0x02, (byte) 0xC4, (byte) 0x0B }));
+
+        return ModbusWaterQualifyAnalysis.getMap(channelCacheService.getCacheResult("Modbus:10.252.31.144:26"));
     }
 
 }

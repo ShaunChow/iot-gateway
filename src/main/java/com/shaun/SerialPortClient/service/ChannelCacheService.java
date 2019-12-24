@@ -27,4 +27,17 @@ public class ChannelCacheService {
     public void evictCache(String key) {
     }
 
+    @CachePut(value = "tcp_result", key = "#key")
+    public String cacheResult(String key, String content) {
+        return content;
+    }
+
+    public String getCacheResult(String key) {
+        return cacheManager.getCache("tcp_result").get(key, String.class);
+    }
+
+    @CacheEvict(value = "tcp_result", key = "#key")
+    public void evictCacheResult(String key) {
+    }
+
 }

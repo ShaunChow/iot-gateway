@@ -5,7 +5,8 @@ import java.util.Optional;
 import com.shaun.SerialPortClient.config.properties.TcpServerProperties;
 import com.shaun.SerialPortClient.config.properties.TcpServerProperties.ContractClientsProperties;
 import com.shaun.SerialPortClient.service.ChannelCacheService;
-import com.shaun.SerialPortClient.service.handler.ModbusDecoderHandler;
+import com.shaun.SerialPortClient.service.handler.TcpDecoderHandler;
+
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
 
@@ -54,11 +55,8 @@ public class BootTcpServer {
 
             conn.addHandler(new IdleStateHandler(0, channalConfig.get().getHeartbeat().getInterval().intValue(), 0));
 
-            if ("Modbus".equals(channalConfig.get().getProtocal())) {
-
-                ModbusDecoderHandler temp = new ModbusDecoderHandler();
-                conn.addHandler(temp);
-            }
+            TcpDecoderHandler temp = new TcpDecoderHandler(channalConfig.get());
+            conn.addHandler(temp);
         }
     }
 
