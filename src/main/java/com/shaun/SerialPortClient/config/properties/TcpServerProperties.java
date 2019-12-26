@@ -90,6 +90,36 @@ public class TcpServerProperties implements Serializable {
             return heartbeat;
         }
 
+        private String frame;
+
+        public void setFrame(String frame) {
+            this.frame = frame;
+        }
+
+        public String getFrame() {
+            return frame;
+        }
+
+        private Integer frameMaxLengh = 1024;
+
+        public void setFrameMaxLengh(Integer frameMaxLengh) {
+            this.frameMaxLengh = frameMaxLengh;
+        }
+
+        public Integer getFrameMaxLengh() {
+            return frameMaxLengh;
+        }
+
+        private FixedLength fixedLength;
+
+        public void setFixedLength(FixedLength fixedlength) {
+            this.fixedLength = fixedlength;
+        }
+
+        public FixedLength getFixedLength() {
+            return fixedLength;
+        }
+
     }
 
     public static class HeartbeatProperties {
@@ -112,6 +142,30 @@ public class TcpServerProperties implements Serializable {
 
         public String getEchohex() {
             return echohex;
+        }
+
+    }
+
+    public static class FixedLength {
+
+        private Integer decodelengh;
+
+        public void setDecodeframelengh(Integer decode) {
+            this.decodelengh = decode;
+        }
+
+        public Integer getDecodeframelengh() {
+            return decodelengh;
+        }
+
+        private Integer encodelengh;
+
+        public void setEncodeframelengh(Integer encode) {
+            this.encodelengh = encode;
+        }
+
+        public Integer getEncodeframelengh() {
+            return encodelengh;
         }
 
     }

@@ -59,4 +59,13 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
 
         super.userEventTriggered(ctx, evt);
     }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        // cause.printStackTrace();
+        log.error("tcp exception,{}", cause.getMessage());
+        ctx.close();
+
+    }
+
 }

@@ -15,6 +15,11 @@ tcp:
       heartbeat:
         interval: 5
         echohex: 010300000002C40B
+      frame: FixedLength
+      frame-max-lengh: 1024
+      fixed-length:
+        decodeframelengh: 9
+        encodeframelengh: 0
 
     - ip: 10.252.31.145
       port: 0
