@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import io.netty.channel.Channel;
@@ -38,6 +39,19 @@ public class ChannelCacheService {
 
     @CacheEvict(value = "tcp_result", key = "#key")
     public void evictCacheResult(String key) {
+    }
+
+    @CachePut(value = "business_result", key = "#key")
+    public Object cacheBusinessResult(String key, Object content) {
+        return content;
+    }
+
+    public <T> T getCacheBusinessResult(String key, @Nullable Class<T> type) {
+        return cacheManager.getCache("business_result").get(key, type);
+    }
+
+    @CacheEvict(value = "business_result", key = "#key")
+    public void evictCacheBusinessResult(String key) {
     }
 
 }

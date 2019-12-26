@@ -1,10 +1,10 @@
 package com.shaun.SerialPortClient.web.rest;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.shaun.SerialPortClient.analysis.ModbusWaterQualifyAnalysis;
 import com.shaun.SerialPortClient.service.ChannelCacheService;
 import com.shaun.SerialPortClient.service.J2modService;
 
@@ -15,8 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
-import io.netty.buffer.Unpooled;
 
 @RestController
 @RequestMapping("/modbus")
@@ -62,7 +60,7 @@ public class ModbusController {
         // 0x03, (byte) 0x00,
         // (byte) 0x00, (byte) 0x00, (byte) 0x02, (byte) 0xC4, (byte) 0x0B }));
 
-        return ModbusWaterQualifyAnalysis.getMap(channelCacheService.getCacheResult("Modbus:10.252.31.144:26"));
+        return channelCacheService.getCacheBusinessResult("Modbus:10.252.31.144:26", Map.class);
     }
 
 }

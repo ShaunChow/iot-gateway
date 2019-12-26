@@ -35,4 +35,11 @@ public class CacheConfig extends CachingConfigurerSupport {
 		tcpResult.setName("tcp_result");
 		return tcpResult;
 	}
+
+	@Bean("businessResult")
+	public ConcurrentMapCacheFactoryBean businessResult() {
+		ConcurrentMapCacheFactoryBean businessResult = new ConcurrentMapCacheFactoryBean();
+		businessResult.setName("business_result");
+		return businessResult;
+	}
 }

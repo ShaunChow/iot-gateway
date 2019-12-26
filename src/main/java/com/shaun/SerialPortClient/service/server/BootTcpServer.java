@@ -57,6 +57,8 @@ public class BootTcpServer {
 
             TcpDecoderHandler temp = new TcpDecoderHandler(channalConfig.get());
             conn.addHandler(temp);
+
+            return;
         }
     }
 
