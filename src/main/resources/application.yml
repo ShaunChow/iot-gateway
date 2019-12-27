@@ -37,6 +37,12 @@ tcp:
         interval: 1
         echohex: 010300000002C40B
     
+spring:
+  http:
+    encoding:
+      enabled: true
+      force: true
+      charset: UTF-8
 
     
 logging:

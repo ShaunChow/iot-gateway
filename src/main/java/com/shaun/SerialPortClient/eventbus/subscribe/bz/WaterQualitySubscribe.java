@@ -7,11 +7,15 @@ import com.shaun.SerialPortClient.analysis.ModbusWaterQualityAnalysis;
 import com.shaun.SerialPortClient.eventbus.message.TcpMessage;
 import com.shaun.SerialPortClient.service.ChannelCacheService;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class WaterQualitySubscribe {
+
+    private static final Logger log = LoggerFactory.getLogger(WaterQualitySubscribe.class);
 
     public static String PROTOCAL_PREFIX = "WaterQuality";
 
@@ -28,7 +32,7 @@ public class WaterQualitySubscribe {
 
         channelCacheService.cacheBusinessResult(message.getMessageType(), waterResult);
 
-        System.out.println("WaterQualitySubscribe message->  messgeType：" + message.getMessageType()
-                + "\n messageContent：" + waterResult);
+        log.info("WaterQualitySubscribe message->  messgeType：" + message.getMessageType() + "\n messageContent："
+                + waterResult);
     }
 }
