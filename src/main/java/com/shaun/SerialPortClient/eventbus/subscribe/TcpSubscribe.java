@@ -15,9 +15,6 @@ public class TcpSubscribe {
 
     @Subscribe
     public void on(TcpMessage message) {
-        System.out.println("TcpSubscribe message->  messgeType：" + message.getMessageType() + "\n messageContent："
-                + message.getMessageContent());
-
         channelCacheService.cacheResult(message.getMessageType(), message.getMessageContent());
     }
 }

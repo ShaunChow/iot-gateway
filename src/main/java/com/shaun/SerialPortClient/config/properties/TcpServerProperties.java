@@ -80,7 +80,7 @@ public class TcpServerProperties implements Serializable {
             return protocal;
         }
 
-        private HeartbeatProperties heartbeat;
+        private HeartbeatProperties heartbeat = new HeartbeatProperties();
 
         public void setHeartbeat(HeartbeatProperties heartbeat) {
             this.heartbeat = heartbeat;
@@ -124,7 +124,7 @@ public class TcpServerProperties implements Serializable {
 
     public static class HeartbeatProperties {
 
-        private Long interval;
+        private Long interval = 0L;
 
         public void setInterval(Long interval) {
             this.interval = interval;

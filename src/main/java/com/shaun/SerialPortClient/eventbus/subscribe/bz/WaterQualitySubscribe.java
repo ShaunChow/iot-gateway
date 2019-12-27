@@ -3,7 +3,7 @@ package com.shaun.SerialPortClient.eventbus.subscribe.bz;
 import java.util.Map;
 
 import com.google.common.eventbus.Subscribe;
-import com.shaun.SerialPortClient.analysis.ModbusWaterQualifyAnalysis;
+import com.shaun.SerialPortClient.analysis.ModbusWaterQualityAnalysis;
 import com.shaun.SerialPortClient.eventbus.message.TcpMessage;
 import com.shaun.SerialPortClient.service.ChannelCacheService;
 
@@ -11,7 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class WaterQualifySubscribe {
+public class WaterQualitySubscribe {
+
+    public static String PROTOCAL_PREFIX = "WaterQuality";
 
     @Autowired
     private ChannelCacheService channelCacheService;
@@ -19,11 +21,14 @@ public class WaterQualifySubscribe {
     @Subscribe
     public void on(TcpMessage message) {
 
-        Map<String, Object> waterResult = ModbusWaterQualifyAnalysis.getMap(message.getMessageContent());
+        if (!message.getMessageType().startsWith(PROTOCAL_PREFIX))
+            return;
+
+        Map<String, Object> waterResult = ModbusWaterQualityAnalysis.getMap(message.getMessageContent());
 
         channelCacheService.cacheBusinessResult(message.getMessageType(), waterResult);
 
-        System.out.println("WaterQualifySubscribe message->  messgeType：" + message.getMessageType()
+        System.out.println("WaterQualitySubscribe message->  messgeType：" + message.getMessageType()
                 + "\n messageContent：" + waterResult);
     }
 }

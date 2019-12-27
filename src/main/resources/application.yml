@@ -11,11 +11,20 @@ tcp:
   
     - ip: 10.252.31.144
       port: 26
-      protocal: Modbus
+      protocal: WaterQuality
       heartbeat:
-        interval: 5
+        interval: 0
         echohex: 010300000002C40B
       frame: FixedLength
+      frame-max-lengh: 1024
+      fixed-length:
+        decodeframelengh: 9
+        encodeframelengh: 0
+    
+    - ip: 10.252.30.214
+      port: 49153
+      protocal: AirQuality
+      frame: LengthField
       frame-max-lengh: 1024
       fixed-length:
         decodeframelengh: 9
@@ -32,4 +41,5 @@ tcp:
     
 logging:
   level:
+    com.shaun: debug
     com.ghgande.j2mod: debug

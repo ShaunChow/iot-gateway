@@ -4,7 +4,7 @@ import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ModbusWaterQualifyAnalysis {
+public class ModbusWaterQualityAnalysis {
 
     private static DecimalFormat twoPointReserve = new DecimalFormat("0.00");
 

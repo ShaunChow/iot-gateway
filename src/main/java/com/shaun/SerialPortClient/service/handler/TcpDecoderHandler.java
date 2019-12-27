@@ -34,7 +34,7 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
         o.duplicate().readBytes(bytes);
         InetSocketAddress x = (InetSocketAddress) ctx.channel().remoteAddress();
 
-        log.info("recieved (" + x.getAddress().getHostAddress() + ":" + x.getPort() + ") client data : "
+        log.debug("recieved (" + x.getAddress().getHostAddress() + ":" + x.getPort() + ") client data : "
                 + HexStrUtil.bytesToHex(bytes));
 
         String key = currentConfig.getProtocal() + ":" + currentConfig.getIp() + ":" + currentConfig.getPort();

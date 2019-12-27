@@ -2,7 +2,8 @@ package com.shaun.SerialPortClient.config;
 
 import com.shaun.SerialPortClient.eventbus.TcpEventBus;
 import com.shaun.SerialPortClient.eventbus.subscribe.TcpSubscribe;
-import com.shaun.SerialPortClient.eventbus.subscribe.bz.WaterQualifySubscribe;
+import com.shaun.SerialPortClient.eventbus.subscribe.bz.AirQualitySubscribe;
+import com.shaun.SerialPortClient.eventbus.subscribe.bz.WaterQualitySubscribe;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -15,12 +16,16 @@ public class EventBusConfig {
     private TcpSubscribe tcpSubscribe;
 
     @Autowired
-    private WaterQualifySubscribe waterQualifySubscribe;
+    private WaterQualitySubscribe waterQualitySubscribe;
+
+    @Autowired
+    private AirQualitySubscribe airQualitySubscribe;
 
     @Bean
     public TcpEventBus tcpEventBusRegister() {
         TcpEventBus.register(tcpSubscribe);
-        TcpEventBus.register(waterQualifySubscribe);
+        TcpEventBus.register(waterQualitySubscribe);
+        TcpEventBus.register(airQualitySubscribe);
         return new TcpEventBus();
     }
 

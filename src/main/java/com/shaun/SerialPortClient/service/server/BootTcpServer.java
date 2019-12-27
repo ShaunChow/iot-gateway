@@ -10,6 +10,8 @@ import com.shaun.SerialPortClient.service.handler.FixedLengthFrameEncoder;
 import com.shaun.SerialPortClient.service.handler.TcpDecoderHandler;
 import com.shaun.SerialPortClient.util.HexStrUtil;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +19,6 @@ import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.FixedLengthFrameDecoder;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
-import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.handler.codec.LineBasedFrameDecoder;
 import io.netty.handler.timeout.IdleStateHandler;
 import reactor.core.publisher.Mono;
@@ -27,6 +28,8 @@ import reactor.netty.tcp.TcpServer;
 
 @Component
 public class BootTcpServer {
+
+    private static final Logger log = LoggerFactory.getLogger(BootTcpServer.class);
 
     private TcpServerProperties config;
 
@@ -48,6 +51,8 @@ public class BootTcpServer {
     }
 
     public void registeredHandlerOnConnection(Connection conn) {
+
+        log.info("tcp " + conn.channel().remoteAddress().toString() + " is connecting...");
 
         Optional<ContractClientsProperties> channalConfig = config.getContractclients().stream().filter(e -> {
             if (("/" + e.getIp() + ":" + e.getPort()).equals(conn.channel().remoteAddress().toString()))
@@ -96,8 +101,8 @@ public class BootTcpServer {
             }
 
             if (EnumTcpFrameStrategy.LENGTH_FIELD.getValue().equals(frameStrategyStr)) {
-                conn.addHandler(new LengthFieldBasedFrameDecoder(maxFrameLengh, 0, 2, 0, 2));
-                conn.addHandler(new LengthFieldPrepender(2));
+                conn.addHandler(new LengthFieldBasedFrameDecoder(maxFrameLengh, 8, 1, 0, 9));
+                conn.addHandler(new TcpDecoderHandler(channalConfig.get()));
                 return;
             }
 
