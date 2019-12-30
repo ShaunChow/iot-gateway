@@ -13,7 +13,7 @@ tcp:
       port: 26
       protocal: WaterQuality
       heartbeat:
-        interval: 0
+        interval: 5
         echohex: 010300000002C40B
       frame: FixedLength
       frame-max-lengh: 1024

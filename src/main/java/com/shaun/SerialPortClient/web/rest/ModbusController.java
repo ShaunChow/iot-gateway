@@ -1,8 +1,10 @@
 package com.shaun.SerialPortClient.web.rest;
 
+import java.io.IOException;
 import java.util.Map;
 
 import com.shaun.SerialPortClient.service.ChannelCacheService;
+import com.shaun.SerialPortClient.service.LightService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +17,16 @@ public class ModbusController {
 
     @Autowired
     private ChannelCacheService channelCacheService;
+
+    @Autowired
+    private LightService lightService;
+
+    @GetMapping("light")
+    public Object getLight() throws IOException {
+
+        return lightService.queryDeviceList();
+
+    }
 
     @GetMapping()
     public Object getCahce() {
