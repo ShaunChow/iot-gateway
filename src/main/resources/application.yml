@@ -36,8 +36,17 @@ tcp:
       heartbeat:
         interval: 1
         echohex: 010300000002C40B
-    
+
 spring:
+  datasource:
+    url:
+    username:
+    password:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
   http:
     encoding:
       enabled: true
@@ -47,5 +56,5 @@ spring:
     
 logging:
   level:
-    com.shaun: debug
-    com.ghgande.j2mod: debug
+    com.shaun: info
+    com.ghgande.j2mod: info

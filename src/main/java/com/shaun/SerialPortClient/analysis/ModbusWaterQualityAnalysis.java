@@ -17,8 +17,8 @@ public class ModbusWaterQualityAnalysis {
         // hexStr = 0422A50872678D
 
         Map<String, Object> resultMap = new HashMap<String, Object>();
-        resultMap.put("value1", threePointReserve.format(Integer.parseInt(hexStr.substring(0, 4), 16) / (float) 1000));
-        resultMap.put("value2", twoPointReserve.format(Integer.parseInt(hexStr.substring(4, 8), 16) / (float) 100));
+        resultMap.put("ph", threePointReserve.format(Integer.parseInt(hexStr.substring(0, 4), 16) / (float) 1000));
+        resultMap.put("celsius", twoPointReserve.format(Integer.parseInt(hexStr.substring(4, 8), 16) / (float) 100));
         return resultMap;
     }
 

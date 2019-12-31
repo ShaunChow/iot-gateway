@@ -46,7 +46,7 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         String socketString = ctx.channel().remoteAddress().toString();
 
-        log.info("EventTriggered at :" + socketString);
+        log.debug("EventTriggered at :" + socketString);
 
         if (evt instanceof IdleStateEvent) {
             IdleStateEvent event = (IdleStateEvent) evt;
