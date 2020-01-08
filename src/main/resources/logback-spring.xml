@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true">
+
+    <springProperty scope="context" name="logging.error-alert-mail.host" source="logging.error-alert-mail.host"/>
+    <springProperty scope="context" name="logging.error-alert-mail.port" source="logging.error-alert-mail.port"/>
+    <springProperty scope="context" name="logging.error-alert-mail.username" source="logging.error-alert-mail.username"/>
+    <springProperty scope="context" name="logging.error-alert-mail.password" source="logging.error-alert-mail.password"/>
+    <springProperty scope="context" name="logging.error-alert-mail.ssl" source="logging.error-alert-mail.ssl"/>
+    <springProperty scope="context" name="logging.error-alert-mail.to" source="logging.error-alert-mail.to"/>
+    <springProperty scope="context" name="logging.error-alert-mail.email-subject" source="logging.error-alert-mail.email-subject"/>
+
+    <!-- use Spring base values -->
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+
+    <appender name="ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>./logs/error/%d{yyyy-MM-dd}-%i.log</FileNamePattern>
+            <MaxHistory>365</MaxHistory>
+            <TimeBasedFileNamingAndTriggeringPolicy
+                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <MaxFileSize>10MB</MaxFileSize>
+            </TimeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+
+        <append>true</append>
+        <encoder>
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <charset>utf-8</charset>
+        </encoder>
+
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+
+    <appender name="EMAIL" class="ch.qos.logback.classic.net.SMTPAppender">
+
+        <smtpHost>${logging.error-alert-mail.host}</smtpHost>
+        <smtpPort>${logging.error-alert-mail.port}</smtpPort>
+        <username>${logging.error-alert-mail.username}</username>
+        <password>${logging.error-alert-mail.password}</password>
+
+        <asynchronousSending>true</asynchronousSending>
+        <SSL>${logging.error-alert-mail.ssl}</SSL>
+        <to>${logging.error-alert-mail.to}</to>
+        <from>${logging.error-alert-mail.username}</from>
+
+        <subject>${logging.error-alert-mail.email-subject}</subject>
+        <layout class="ch.qos.logback.classic.html.HTMLLayout">
+            <Pattern>%date%level%thread%logger{0}%line%message</Pattern>
+        </layout>
+
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+
+        <cyclicBufferTracker class="ch.qos.logback.core.spi.CyclicBufferTracker">
+            <bufferSize>1</bufferSize>
+        </cyclicBufferTracker>
+    </appender>
+
+	<root level="INFO">
+		<appender-ref ref="CONSOLE" />
+		<appender-ref ref="FILE" />
+        <appender-ref ref="ERROR" />
+        <appender-ref ref="EMAIL" />
+	</root>
+</configuration>

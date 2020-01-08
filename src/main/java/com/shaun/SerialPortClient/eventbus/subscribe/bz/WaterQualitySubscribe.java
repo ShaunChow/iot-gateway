@@ -22,7 +22,7 @@ public class WaterQualitySubscribe {
 
     private static final Logger log = LoggerFactory.getLogger(WaterQualitySubscribe.class);
 
-    public static String PROTOCAL_PREFIX = "WaterQuality";
+    public static String PROTOCAL_PREFIX = "WaterQuality-ph";
 
     private LocalDateTime lastUpdateTime = LocalDateTime.MIN;
 
@@ -51,7 +51,7 @@ public class WaterQualitySubscribe {
         newRecord.setBody(new ObjectMapper().writeValueAsString(waterResult));
         iotRecordRepossitory.save(newRecord);
 
-        log.debug("WaterQualitySubscribe message->  messgeType：" + message.getMessageType() + "\n messageContent：\n"
+        log.info("WaterQualitySubscribe message->  messgeType：" + message.getMessageType() + "\n messageContent：\n"
                 + new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(waterResult));
     }
 }

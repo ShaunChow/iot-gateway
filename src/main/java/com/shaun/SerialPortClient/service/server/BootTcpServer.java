@@ -1,18 +1,20 @@
 package com.shaun.SerialPortClient.service.server;
 
+import java.net.InetSocketAddress;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import com.shaun.SerialPortClient.config.properties.TcpServerProperties;
-import com.shaun.SerialPortClient.config.properties.TcpServerProperties.ContractClientsProperties;
+import com.shaun.SerialPortClient.entity.IotInfo;
 import com.shaun.SerialPortClient.model.EnumTcpFrameStrategy;
+import com.shaun.SerialPortClient.repository.IotInfoRepository;
 import com.shaun.SerialPortClient.service.ChannelCacheService;
-import com.shaun.SerialPortClient.service.handler.FixedLengthFrameEncoder;
 import com.shaun.SerialPortClient.service.handler.TcpDecoderHandler;
 import com.shaun.SerialPortClient.util.HexStrUtil;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.CacheManager;
+import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Component;
 
 import io.netty.buffer.Unpooled;
@@ -35,9 +37,12 @@ public class BootTcpServer {
 
     private ChannelCacheService channelCacheService;
 
-    public BootTcpServer(TcpServerProperties config, CacheManager cacheManager,
+    private IotInfoRepository iotInfoRepository;
+
+    public BootTcpServer(TcpServerProperties config, IotInfoRepository iotInfoRepository,
             ChannelCacheService channelCacheService) {
         this.config = config;
+        this.iotInfoRepository = iotInfoRepository;
         this.channelCacheService = channelCacheService;
     }
 
@@ -50,68 +55,92 @@ public class BootTcpServer {
                 .port(config.getServer().getPort()).bindNow();
     }
 
-    public void registeredHandlerOnConnection(Connection conn) {
+    private void registeredHandlerOnConnection(Connection conn) {
 
-        log.info("tcp " + conn.channel().remoteAddress().toString() + " is connecting...");
+        InetSocketAddress remoteAddress = (InetSocketAddress) conn.channel().remoteAddress();
+        log.info("tcp " + remoteAddress.toString() + " is connecting...");
 
-        Optional<ContractClientsProperties> channalConfig = config.getContractclients().stream().filter(e -> {
-            if (("/" + e.getIp() + ":" + e.getPort()).equals(conn.channel().remoteAddress().toString()))
-                return true;
-            return conn.channel().remoteAddress().toString().indexOf(e.getIp()) > 0;
-        }).findFirst();
+        String key = "Strange:" + conn.channel().remoteAddress().toString().substring(1);
+        IotInfo currentIotInfo = new IotInfo();
+        currentIotInfo.setProtocal("Strange");
+
+        Optional<IotInfo> channalConfig = searchIotInfoByIp(remoteAddress.getAddress().getHostAddress());
 
         if (channalConfig.isPresent()) {
+            currentIotInfo = channalConfig.get();
 
-            String key = channalConfig.get().getProtocal() + ":" + channalConfig.get().getIp() + ":"
-                    + channalConfig.get().getPort();
+            if (null == currentIotInfo.getProtocal()) {
+                currentIotInfo.setProtocal("Strange");
+            }
 
-            channelCacheService.cache(key, conn.channel());
+            key = currentIotInfo.getProtocal() + ":" + currentIotInfo.getIp() + ":" + remoteAddress.getPort();
 
-            conn.addHandler(new IdleStateHandler(0, channalConfig.get().getHeartbeat().getInterval().intValue(), 0));
+            if (null == currentIotInfo.getEchoInterval()) {
+                currentIotInfo.setEchoInterval(0);
+            }
 
-            String frameStrategyStr = channalConfig.get().getFrame();
+            conn.addHandler(new IdleStateHandler(0, currentIotInfo.getEchoInterval(), 0));
 
-            int maxFrameLengh = channalConfig.get().getFrameMaxLengh();
+            if (null == currentIotInfo.getDataFrameType()) {
+                currentIotInfo.setDataFrameType("Strange");
+            }
+            String frameStrategyStr = currentIotInfo.getDataFrameType();
+
+            if (null == currentIotInfo.getFrameMaxLengh()) {
+                currentIotInfo.setFrameMaxLengh(1024);
+            }
+            int maxFrameLengh = currentIotInfo.getFrameMaxLengh();
 
             if (EnumTcpFrameStrategy.FIXED_LENGTH.getValue().equals(frameStrategyStr)) {
-
-                conn.addHandler(
-                        new FixedLengthFrameDecoder(channalConfig.get().getFixedLength().getDecodeframelengh()));
-                conn.addHandler(new TcpDecoderHandler(channalConfig.get()));
-
-                Integer encodeLengh = channalConfig.get().getFixedLength().getEncodeframelengh();
-
-                if (null != encodeLengh && 0 < encodeLengh) {
-                    conn.addHandler(new FixedLengthFrameEncoder(encodeLengh));
-                }
-                return;
-            }
-
-            if (EnumTcpFrameStrategy.DELIMITER.getValue().equals(frameStrategyStr)) {
-                conn.addHandler(new DelimiterBasedFrameDecoder(maxFrameLengh,
-                        Unpooled.buffer().writeBytes(HexStrUtil.hexToBytes("$"))));
-                conn.addHandler(new TcpDecoderHandler(channalConfig.get()));
-                return;
-            }
-
-            if (EnumTcpFrameStrategy.LINE.getValue().equals(frameStrategyStr)) {
+                conn.addHandler(new FixedLengthFrameDecoder(
+                        (int) currentIotInfo.getContent().getOrDefault("decodeFrameLength", 8)));
+            } else if (EnumTcpFrameStrategy.DELIMITER.getValue().equals(frameStrategyStr)) {
+                conn.addHandler(new DelimiterBasedFrameDecoder(maxFrameLengh, Unpooled.buffer().writeBytes(
+                        HexStrUtil.hexToBytes(currentIotInfo.getContent().get("delimiterHex").toString()))));
+            } else if (EnumTcpFrameStrategy.LINE.getValue().equals(frameStrategyStr)) {
                 conn.addHandler(new LineBasedFrameDecoder(maxFrameLengh));
-                conn.addHandler(new TcpDecoderHandler(channalConfig.get()));
-                return;
+            } else if (EnumTcpFrameStrategy.LENGTH_FIELD.getValue().equals(frameStrategyStr)) {
+                int lengthFieldOffset = (int) currentIotInfo.getContent().get("lengthFieldOffset");
+                int lengthFieldLength = (int) currentIotInfo.getContent().get("lengthFieldLength");
+                int lengthAdjustment = (int) currentIotInfo.getContent().get("lengthAdjustment");
+                int initialBytesToStrip = (int) currentIotInfo.getContent().get("initialBytesToStrip");
+                conn.addHandler(new LengthFieldBasedFrameDecoder(maxFrameLengh, lengthFieldOffset, lengthFieldLength,
+                        lengthAdjustment, initialBytesToStrip));
             }
-
-            if (EnumTcpFrameStrategy.LENGTH_FIELD.getValue().equals(frameStrategyStr)) {
-                conn.addHandler(new LengthFieldBasedFrameDecoder(maxFrameLengh, 8, 1, 0, 9));
-                conn.addHandler(new TcpDecoderHandler(channalConfig.get()));
-                return;
-            }
-
-            return;
         }
+
+        if (currentIotInfo.getCreateAt() == null) {
+            currentIotInfo.setCreateAt(LocalDateTime.now());
+        } else {
+            currentIotInfo.setUpdateAt(LocalDateTime.now());
+        }
+        currentIotInfo.setIp(remoteAddress.getAddress().getHostAddress());
+        currentIotInfo.setStatus(key);
+        currentIotInfo = iotInfoRepository.save(currentIotInfo);
+
+        conn.addHandler(new TcpDecoderHandler(currentIotInfo));
+        channelCacheService.cache(key, conn.channel());
+        log.info("tcp: " + key + " is connected.");
     }
 
-    public void deregistHandlerOnUnbound(DisposableServer server) {
+    private void deregistHandlerOnUnbound(DisposableServer server) {
+        InetSocketAddress remoteAddress = (InetSocketAddress) server.channel().remoteAddress();
+        log.info("tcp " + remoteAddress.toString() + " is disconnecting...");
+        Optional<IotInfo> disConnectIot = searchIotInfoByIp(remoteAddress.getAddress().getHostAddress());
 
+        if (disConnectIot.isPresent()) {
+            IotInfo updated = disConnectIot.get();
+            updated.setUpdateAt(LocalDateTime.now());
+            updated.setStatus("");
+            iotInfoRepository.save(updated);
+        }
+
+    }
+
+    private Optional<IotInfo> searchIotInfoByIp(String ip) {
+        IotInfo search = new IotInfo();
+        search.setIp(ip);
+        return iotInfoRepository.findOne(Example.of(search));
     }
 
 }

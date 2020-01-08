@@ -1,9 +1,13 @@
 package com.shaun.SerialPortClient.service;
 
+import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.concurrent.ConcurrentMapCache;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +26,12 @@ public class ChannelCacheService {
 
     public Channel getCache(String key) {
         return cacheManager.getCache("tcp_connection").get(key, Channel.class);
+    }
+
+    public Set<Object> getCacheKeys() {
+        ConcurrentMapCache tcpConnections = (ConcurrentMapCache) cacheManager.getCache("tcp_connection");
+        ConcurrentMap<Object, Object> map = tcpConnections.getNativeCache();
+        return map.keySet();
     }
 
     @CacheEvict(value = "tcp_connection", key = "#key")

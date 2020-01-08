@@ -51,7 +51,7 @@ public class AirQualitySubscribe {
         newRecord.setBody(new ObjectMapper().writeValueAsString(airResult));
         iotRecordRepossitory.save(newRecord);
 
-        log.debug("AirQualitySubscribe message->  messgeType：" + message.getMessageType() + "\n messageContent：\n"
+        log.info("AirQualitySubscribe message->  messgeType：" + message.getMessageType() + "\n messageContent：\n"
                 + new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(airResult));
     }
 

@@ -2,7 +2,7 @@ package com.shaun.SerialPortClient.service.handler;
 
 import java.net.InetSocketAddress;
 import java.util.List;
-import com.shaun.SerialPortClient.config.properties.TcpServerProperties.ContractClientsProperties;
+import com.shaun.SerialPortClient.entity.IotInfo;
 import com.shaun.SerialPortClient.eventbus.TcpEventBus;
 import com.shaun.SerialPortClient.eventbus.message.TcpMessage;
 import com.shaun.SerialPortClient.util.HexStrUtil;
@@ -22,9 +22,9 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
 
     private static final Logger log = LoggerFactory.getLogger(TcpDecoderHandler.class);
 
-    private ContractClientsProperties currentConfig;
+    private IotInfo currentConfig;
 
-    public TcpDecoderHandler(ContractClientsProperties contractClientsProperties) {
+    public TcpDecoderHandler(IotInfo contractClientsProperties) {
         this.currentConfig = contractClientsProperties;
     }
 
@@ -34,10 +34,10 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
         o.duplicate().readBytes(bytes);
         InetSocketAddress x = (InetSocketAddress) ctx.channel().remoteAddress();
 
-        log.debug("recieved (" + x.getAddress().getHostAddress() + ":" + x.getPort() + ") client data : "
+        log.info("recieved (" + x.getAddress().getHostAddress() + ":" + x.getPort() + ") client data : "
                 + HexStrUtil.bytesToHex(bytes));
 
-        String key = currentConfig.getProtocal() + ":" + currentConfig.getIp() + ":" + currentConfig.getPort();
+        String key = currentConfig.getProtocal() + ":" + x.getAddress().getHostAddress() + ":" + x.getPort();
 
         TcpEventBus.post(new TcpMessage(key, HexStrUtil.bytesToHex(bytes)));
     }
@@ -50,10 +50,8 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
 
         if (evt instanceof IdleStateEvent) {
             IdleStateEvent event = (IdleStateEvent) evt;
-            if (event.state() == IdleState.WRITER_IDLE
-                    && !StringUtils.isEmpty(currentConfig.getHeartbeat().getEchohex())) {
-                ctx.writeAndFlush(
-                        Unpooled.buffer().writeBytes(HexStrUtil.hexToBytes(currentConfig.getHeartbeat().getEchohex())));
+            if (event.state() == IdleState.WRITER_IDLE && !StringUtils.isEmpty(currentConfig.getEchoHex())) {
+                ctx.writeAndFlush(Unpooled.buffer().writeBytes(HexStrUtil.hexToBytes(currentConfig.getEchoHex())));
             }
         }
 
@@ -62,10 +60,9 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        // cause.printStackTrace();
+        cause.printStackTrace();
         log.error("tcp exception,{}", cause.getMessage());
         ctx.close();
-
     }
 
 }
