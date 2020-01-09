@@ -7,11 +7,43 @@ serialport:
 tcp:
   server:
     port: 26
+  contractclients:
+  
+    # - ip: 10.252.31.144
+    #   port: 26
+    #   protocal: WaterQuality
+    #   heartbeat:
+    #     interval: 60
+    #     echohex: 010300000002C40B
+    #   frame: FixedLength
+    #   frame-max-lengh: 1024
+    #   fixed-length:
+    #     decodeframelengh: 9
+    #     encodeframelengh: 0
+    
+    # - ip: 10.252.30.214
+    #   port: 49153
+    #   protocal: AirQuality
+    #   frame: LengthField
+    #   frame-max-lengh: 1024
+    #   fixed-length:
+    #     decodeframelengh: 9
+    #     encodeframelengh: 0
 
+    # - ip: 10.252.31.145
+    #   port: 0
+    #   protocal: Modbus
+    #   heartbeat:
+    #     interval: 1
+    #     echohex: 010300000002C40B
 
 spring:
 
-
+  # datasource:
+  #   url: jdbc:mysql://10.252.31.231:3306/iot_gateway?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&useSSL=false
+  #   username: root
+  #   password: HJSY.aifm
+  #   driver-class-name: com.mysql.cj.jdbc.Driver
 
   application:
     name: iot-gateway
@@ -26,14 +58,6 @@ spring:
       enabled: true
       force: true
       charset: UTF-8
-
-  h2:
-    console:
-      settings:
-        web-allow-others: true
-        trace: true
-      path: /h2-console
-      enabled: true
 
 logging:
 

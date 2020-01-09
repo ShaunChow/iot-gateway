@@ -1,6 +1,7 @@
 package com.shaun.SerialPortClient.entity;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.persistence.Column;
@@ -8,15 +9,15 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
-import com.vladmihalcea.hibernate.type.json.JsonStringType;
-
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Entity
 @Table(name = "iot_info")
-@TypeDef(name = "json", typeClass = JsonStringType.class)
 public class IotInfo {
 
     @javax.persistence.Id
@@ -91,15 +92,23 @@ public class IotInfo {
         this.frame_max_lengh = frame_max_lengh;
     }
 
-    @Type(type = "json")
-    @Column(columnDefinition = "json")
-    private Map<String, Object> content;
+    @JsonIgnoreProperties
+    @Column(columnDefinition = "varchar(5000)")
+    private String content;
 
-    public Map<String, Object> getContent() {
+    public String getContent() {
+        if (null == contentMap)
+            return null;
+        try {
+            this.content = new ObjectMapper().writeValueAsString(contentMap);
+        } catch (JsonProcessingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         return this.content;
     }
 
-    public void setContent(Map<String, Object> content) {
+    public void setContent(String content) {
         this.content = content;
     }
 
@@ -131,6 +140,42 @@ public class IotInfo {
 
     public void setUpdateAt(LocalDateTime update_at) {
         this.update_at = update_at;
+    }
+
+    // ignore column by jpa
+
+    @Transient
+    private Map<String, Object> contentMap;
+
+    public Map<String, Object> getContentMap() {
+
+        if (null == content) {
+            return null;
+        }
+
+        Map<String, Object> result = new HashMap<String, Object>();
+        try {
+            result = new ObjectMapper().readValue(content, new TypeReference<Map<String, Object>>() {
+            });
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public void setContentMap(Map<String, Object> contentMap) {
+        this.contentMap = contentMap;
+
+        if (null == contentMap) {
+            this.content = null;
+        }
+        try {
+            this.content = new ObjectMapper().writeValueAsString(contentMap);
+        } catch (JsonProcessingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
 }

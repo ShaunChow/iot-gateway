@@ -1,5 +1,6 @@
 package com.shaun.SerialPortClient.service;
 
+import java.util.Arrays;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
@@ -47,6 +48,12 @@ public class ChannelCacheService {
         return cacheManager.getCache("tcp_result").get(key, String.class);
     }
 
+    public Set<Object> getCacheResultKeys() {
+        ConcurrentMapCache tcpConnections = (ConcurrentMapCache) cacheManager.getCache("tcp_result");
+        ConcurrentMap<Object, Object> map = tcpConnections.getNativeCache();
+        return map.keySet();
+    }
+
     @CacheEvict(value = "tcp_result", key = "#key")
     public void evictCacheResult(String key) {
     }
@@ -60,8 +67,36 @@ public class ChannelCacheService {
         return cacheManager.getCache("business_result").get(key, type);
     }
 
+    public Set<Object> getCacheBusinessResultKeys() {
+        ConcurrentMapCache tcpConnections = (ConcurrentMapCache) cacheManager.getCache("business_result");
+        ConcurrentMap<Object, Object> map = tcpConnections.getNativeCache();
+        return map.keySet();
+    }
+
     @CacheEvict(value = "business_result", key = "#key")
     public void evictCacheBusinessResult(String key) {
+    }
+
+    public void evictAllCacheByIp(String ip) {
+
+        Arrays.stream(getCacheKeys().toArray()).forEach((e -> {
+            if (e.toString().indexOf(":" + ip + ":") > 0) {
+                cacheManager.getCache("tcp_connection").evict(e.toString());
+            }
+        }));
+
+        Arrays.stream(getCacheResultKeys().toArray()).forEach((e -> {
+            if (e.toString().indexOf(":" + ip + ":") > 0) {
+                cacheManager.getCache("tcp_result").evict(e.toString());
+            }
+        }));
+
+        Arrays.stream(getCacheBusinessResultKeys().toArray()).forEach((e -> {
+            if (e.toString().indexOf(":" + ip + ":") > 0) {
+                cacheManager.getCache("business_result").evict(e.toString());
+            }
+        }));
+
     }
 
 }

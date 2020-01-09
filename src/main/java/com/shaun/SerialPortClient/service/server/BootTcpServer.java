@@ -10,8 +10,6 @@ import com.shaun.SerialPortClient.model.EnumTcpFrameStrategy;
 import com.shaun.SerialPortClient.repository.IotInfoRepository;
 import com.shaun.SerialPortClient.service.ChannelCacheService;
 import com.shaun.SerialPortClient.service.handler.TcpDecoderHandler;
-import com.shaun.SerialPortClient.util.HexStrUtil;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Example;
@@ -69,12 +67,6 @@ public class BootTcpServer {
         if (channalConfig.isPresent()) {
             currentIotInfo = channalConfig.get();
 
-            if (null == currentIotInfo.getProtocal()) {
-                currentIotInfo.setProtocal("Strange");
-            }
-
-            key = currentIotInfo.getProtocal() + ":" + currentIotInfo.getIp() + ":" + remoteAddress.getPort();
-
             if (null == currentIotInfo.getEchoInterval()) {
                 currentIotInfo.setEchoInterval(0);
             }
@@ -91,21 +83,29 @@ public class BootTcpServer {
             }
             int maxFrameLengh = currentIotInfo.getFrameMaxLengh();
 
-            if (EnumTcpFrameStrategy.FIXED_LENGTH.getValue().equals(frameStrategyStr)) {
-                conn.addHandler(new FixedLengthFrameDecoder(
-                        (int) currentIotInfo.getContent().getOrDefault("decodeFrameLength", 8)));
-            } else if (EnumTcpFrameStrategy.DELIMITER.getValue().equals(frameStrategyStr)) {
-                conn.addHandler(new DelimiterBasedFrameDecoder(maxFrameLengh, Unpooled.buffer().writeBytes(
-                        HexStrUtil.hexToBytes(currentIotInfo.getContent().get("delimiterHex").toString()))));
-            } else if (EnumTcpFrameStrategy.LINE.getValue().equals(frameStrategyStr)) {
-                conn.addHandler(new LineBasedFrameDecoder(maxFrameLengh));
-            } else if (EnumTcpFrameStrategy.LENGTH_FIELD.getValue().equals(frameStrategyStr)) {
-                int lengthFieldOffset = (int) currentIotInfo.getContent().get("lengthFieldOffset");
-                int lengthFieldLength = (int) currentIotInfo.getContent().get("lengthFieldLength");
-                int lengthAdjustment = (int) currentIotInfo.getContent().get("lengthAdjustment");
-                int initialBytesToStrip = (int) currentIotInfo.getContent().get("initialBytesToStrip");
-                conn.addHandler(new LengthFieldBasedFrameDecoder(maxFrameLengh, lengthFieldOffset, lengthFieldLength,
-                        lengthAdjustment, initialBytesToStrip));
+            try {
+                if (EnumTcpFrameStrategy.FIXED_LENGTH.getValue().equals(frameStrategyStr)) {
+                    conn.addHandler(new FixedLengthFrameDecoder(
+                            (int) currentIotInfo.getContentMap().getOrDefault("decodeFrameLength", 8)));
+                } else if (EnumTcpFrameStrategy.DELIMITER.getValue().equals(frameStrategyStr)) {
+                    conn.addHandler(new DelimiterBasedFrameDecoder(maxFrameLengh, Unpooled.buffer()
+                            .writeBytes(currentIotInfo.getContentMap().get("delimiter").toString().getBytes())));
+                } else if (EnumTcpFrameStrategy.LINE.getValue().equals(frameStrategyStr)) {
+                    conn.addHandler(new LineBasedFrameDecoder(maxFrameLengh));
+                } else if (EnumTcpFrameStrategy.LENGTH_FIELD.getValue().equals(frameStrategyStr)) {
+                    int lengthFieldOffset = (int) currentIotInfo.getContentMap().get("lengthFieldOffset");
+                    int lengthFieldLength = (int) currentIotInfo.getContentMap().get("lengthFieldLength");
+                    int lengthAdjustment = (int) currentIotInfo.getContentMap().get("lengthAdjustment");
+                    int initialBytesToStrip = (int) currentIotInfo.getContentMap().get("initialBytesToStrip");
+                    conn.addHandler(new LengthFieldBasedFrameDecoder(maxFrameLengh, lengthFieldOffset,
+                            lengthFieldLength, lengthAdjustment, initialBytesToStrip));
+                }
+
+                key = null == currentIotInfo.getProtocal()
+                        ? "Strange:" + currentIotInfo.getIp() + ":" + remoteAddress.getPort()
+                        : currentIotInfo.getProtocal() + ":" + currentIotInfo.getIp() + ":" + remoteAddress.getPort();
+            } catch (Exception e) {
+                log.info("config wrong: " + e.getMessage());
             }
         }
 
@@ -118,7 +118,7 @@ public class BootTcpServer {
         currentIotInfo.setStatus(key);
         currentIotInfo = iotInfoRepository.save(currentIotInfo);
 
-        conn.addHandler(new TcpDecoderHandler(currentIotInfo));
+        conn.addHandler(new TcpDecoderHandler(currentIotInfo, iotInfoRepository, channelCacheService));
         channelCacheService.cache(key, conn.channel());
         log.info("tcp: " + key + " is connected.");
     }

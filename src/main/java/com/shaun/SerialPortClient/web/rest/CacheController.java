@@ -1,5 +1,8 @@
 package com.shaun.SerialPortClient.web.rest;
 
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import com.shaun.SerialPortClient.service.ChannelCacheService;
@@ -19,7 +22,16 @@ public class CacheController {
 
     @GetMapping()
     public Object getCahce(@RequestParam String key) {
-        return channelCacheService.getCacheBusinessResult(key, Map.class);
+
+        List<Object> result = new LinkedList<>();
+
+        Arrays.stream(channelCacheService.getCacheBusinessResultKeys().toArray()).forEach((e -> {
+            if (e.toString().indexOf(":" + key + ":") > 0) {
+                result.add(channelCacheService.getCacheBusinessResult(e.toString(), Map.class));
+            }
+        }));
+
+        return result;
     }
 
 }
