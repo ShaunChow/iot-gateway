@@ -30,4 +30,12 @@ logging:
     com.shaun: info
     com.ghgande.j2mod: info
   file: logs/${spring.application.name}.log
-
+  error-alert-mail:
+    host: 
+    port: 
+    username: 
+    password: 
+    ssl: 
+    protocol: 
+    to: 
+    email-subject: 

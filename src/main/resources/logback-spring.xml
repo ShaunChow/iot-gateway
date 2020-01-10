@@ -60,7 +60,7 @@
         </filter>
 
         <cyclicBufferTracker class="ch.qos.logback.core.spi.CyclicBufferTracker">
-            <bufferSize>1</bufferSize>
+            <bufferSize>10</bufferSize>
         </cyclicBufferTracker>
     </appender>
 
