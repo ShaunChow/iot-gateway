@@ -77,22 +77,28 @@ public class ChannelCacheService {
     public void evictCacheBusinessResult(String key) {
     }
 
-    public void evictAllCacheByIp(String ip) {
+    public void evictAllCacheByIp(String ip, String port, String currentThreadName) {
 
         Arrays.stream(getCacheKeys().toArray()).forEach((e -> {
-            if (e.toString().indexOf(":" + ip + ":") > 0) {
+            String[] tempArray = e.toString().split(":");
+            if (tempArray.length == 4 && tempArray[1].equals(ip) && tempArray[2].equals(port)
+                    && tempArray[3].equals(currentThreadName)) {
                 cacheManager.getCache("tcp_connection").evict(e.toString());
             }
         }));
 
         Arrays.stream(getCacheResultKeys().toArray()).forEach((e -> {
-            if (e.toString().indexOf(":" + ip + ":") > 0) {
+            String[] tempArray = e.toString().split(":");
+            if (tempArray.length == 4 && tempArray[1].equals(ip) && tempArray[2].equals(port)
+                    && tempArray[3].equals(currentThreadName)) {
                 cacheManager.getCache("tcp_result").evict(e.toString());
             }
         }));
 
         Arrays.stream(getCacheBusinessResultKeys().toArray()).forEach((e -> {
-            if (e.toString().indexOf(":" + ip + ":") > 0) {
+            String[] tempArray = e.toString().split(":");
+            if (tempArray.length == 4 && tempArray[1].equals(ip) && tempArray[2].equals(port)
+                    && tempArray[3].equals(currentThreadName)) {
                 cacheManager.getCache("business_result").evict(e.toString());
             }
         }));

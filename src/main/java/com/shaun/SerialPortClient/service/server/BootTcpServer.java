@@ -46,11 +46,14 @@ public class BootTcpServer {
 
     public DisposableServer runTcpServer() {
 
+        int tcpServerPort = config.getServer().getPort();
+        log.info("Netty tcp server is listening on: " + tcpServerPort);
+
         return TcpServer.create().wiretap(true).handle((inbound, outbound) -> {
             inbound.receive().asByteArray().subscribe();
             return outbound.sendString(Mono.just("connect sucessfully..")).neverComplete();
         }).doOnConnection(this::registeredHandlerOnConnection).doOnUnbound(this::deregistHandlerOnUnbound)
-                .port(config.getServer().getPort()).bindNow();
+                .port(tcpServerPort).bindNow();
     }
 
     private void registeredHandlerOnConnection(Connection conn) {
@@ -58,7 +61,8 @@ public class BootTcpServer {
         InetSocketAddress remoteAddress = (InetSocketAddress) conn.channel().remoteAddress();
         log.info("tcp " + remoteAddress.toString() + " is connecting...");
 
-        String key = "Strange:" + conn.channel().remoteAddress().toString().substring(1);
+        String key = "Strange:" + conn.channel().remoteAddress().toString().substring(1) + ":"
+                + Thread.currentThread().getName();
         IotInfo currentIotInfo = new IotInfo();
         currentIotInfo.setProtocal("Strange");
 
@@ -102,8 +106,10 @@ public class BootTcpServer {
                 }
 
                 key = null == currentIotInfo.getProtocal()
-                        ? "Strange:" + currentIotInfo.getIp() + ":" + remoteAddress.getPort()
-                        : currentIotInfo.getProtocal() + ":" + currentIotInfo.getIp() + ":" + remoteAddress.getPort();
+                        ? "Strange:" + currentIotInfo.getIp() + ":" + remoteAddress.getPort() + ":"
+                                + Thread.currentThread().getName()
+                        : currentIotInfo.getProtocal() + ":" + currentIotInfo.getIp() + ":" + remoteAddress.getPort()
+                                + ":" + Thread.currentThread().getName();
             } catch (Exception e) {
                 log.info("config wrong: " + e.getMessage());
             }

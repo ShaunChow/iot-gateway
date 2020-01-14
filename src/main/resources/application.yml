@@ -6,7 +6,7 @@ serialport:
 
 tcp:
   server:
-    port: 26
+    port: 8099
 
 spring:
 
@@ -29,6 +29,7 @@ logging:
   level:
     com.shaun: info
     com.ghgande.j2mod: info
+    reactor.netty.tcp.TcpServer: debug
   file: logs/${spring.application.name}.log
   error-alert-mail:
     host: 
