@@ -84,8 +84,7 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
             iotInfoRepository.save(updated);
         }
 
-        channelCacheService.evictAllCacheByIp(remoteAddress.getAddress().getHostAddress(),
-                String.valueOf(remoteAddress.getPort()), Thread.currentThread().getName());
+        channelCacheService.evictAllCacheByIp(currentConfig.getStatus());
 
         super.channelInactive(ctx);
     }

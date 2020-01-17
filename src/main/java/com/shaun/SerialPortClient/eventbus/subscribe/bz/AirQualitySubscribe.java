@@ -5,10 +5,10 @@ import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.eventbus.Subscribe;
 import com.shaun.SerialPortClient.analysis.ModbusAirQualityAnalysis;
 import com.shaun.SerialPortClient.entity.IotRecord;
 import com.shaun.SerialPortClient.eventbus.message.TcpMessage;
+import com.shaun.SerialPortClient.eventbus.subscribe.TcpListening;
 import com.shaun.SerialPortClient.repository.IotRecordRepository;
 import com.shaun.SerialPortClient.service.ChannelCacheService;
 
@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AirQualitySubscribe {
+public class AirQualitySubscribe implements TcpListening {
 
     private static final Logger log = LoggerFactory.getLogger(AirQualitySubscribe.class);
 
@@ -32,7 +32,7 @@ public class AirQualitySubscribe {
     @Autowired
     private IotRecordRepository iotRecordRepossitory;
 
-    @Subscribe
+    @Override
     public void on(TcpMessage message) throws JsonProcessingException {
 
         if (!message.getMessageType().startsWith(PROTOCAL_PREFIX)

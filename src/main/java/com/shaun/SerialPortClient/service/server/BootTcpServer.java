@@ -10,6 +10,8 @@ import com.shaun.SerialPortClient.model.EnumTcpFrameStrategy;
 import com.shaun.SerialPortClient.repository.IotInfoRepository;
 import com.shaun.SerialPortClient.service.ChannelCacheService;
 import com.shaun.SerialPortClient.service.handler.TcpDecoderHandler;
+import com.shaun.SerialPortClient.util.SystemClock;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Example;
@@ -58,11 +60,12 @@ public class BootTcpServer {
 
     private void registeredHandlerOnConnection(Connection conn) {
 
+        long timestamp = SystemClock.millisClock().now();
+
         InetSocketAddress remoteAddress = (InetSocketAddress) conn.channel().remoteAddress();
         log.info("tcp " + remoteAddress.toString() + " is connecting...");
 
-        String key = "Strange:" + conn.channel().remoteAddress().toString().substring(1) + ":"
-                + Thread.currentThread().getName();
+        String key = "Strange:" + conn.channel().remoteAddress().toString().substring(1) + ":" + timestamp;
         IotInfo currentIotInfo = new IotInfo();
         currentIotInfo.setProtocal("Strange");
 
@@ -106,10 +109,9 @@ public class BootTcpServer {
                 }
 
                 key = null == currentIotInfo.getProtocal()
-                        ? "Strange:" + currentIotInfo.getIp() + ":" + remoteAddress.getPort() + ":"
-                                + Thread.currentThread().getName()
+                        ? "Strange:" + currentIotInfo.getIp() + ":" + remoteAddress.getPort() + ":" + timestamp
                         : currentIotInfo.getProtocal() + ":" + currentIotInfo.getIp() + ":" + remoteAddress.getPort()
-                                + ":" + Thread.currentThread().getName();
+                                + ":" + timestamp;
             } catch (Exception e) {
                 log.info("config wrong: " + e.getMessage());
             }
