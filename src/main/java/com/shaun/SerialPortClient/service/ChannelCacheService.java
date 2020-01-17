@@ -11,6 +11,7 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.concurrent.ConcurrentMapCache;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import io.netty.channel.Channel;
 
@@ -80,6 +81,8 @@ public class ChannelCacheService {
     public void evictAllCacheByIp(String tcpStatus) {
 
         String[] param = tcpStatus.split(":");
+        Assert.isTrue(4 == param.length,
+                "Cache Kye must be composed by 4 part, eg:{protocal}:{ip}:{port}:{timestamp}!");
         String ip = param[1];
         String port = param[2];
         String timestamp = param[3];
