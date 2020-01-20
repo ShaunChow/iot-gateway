@@ -132,16 +132,6 @@ public class BootTcpServer {
     }
 
     private void deregistHandlerOnUnbound(DisposableServer server) {
-        InetSocketAddress remoteAddress = (InetSocketAddress) server.channel().remoteAddress();
-        log.info("tcp " + remoteAddress.toString() + " is disconnecting...");
-        Optional<IotInfo> disConnectIot = searchIotInfoByIp(remoteAddress.getAddress().getHostAddress());
-
-        if (disConnectIot.isPresent()) {
-            IotInfo updated = disConnectIot.get();
-            updated.setUpdateAt(LocalDateTime.now());
-            updated.setStatus("");
-            iotInfoRepository.save(updated);
-        }
 
     }
 

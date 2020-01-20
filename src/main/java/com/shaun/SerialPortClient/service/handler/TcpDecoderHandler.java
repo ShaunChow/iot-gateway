@@ -75,7 +75,8 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         InetSocketAddress remoteAddress = (InetSocketAddress) ctx.channel().remoteAddress();
         log.info("tcp " + remoteAddress.toString() + " is inactive...");
-        Optional<IotInfo> disConnectIot = searchIotInfoByIp(remoteAddress.getAddress().getHostAddress());
+        Optional<IotInfo> disConnectIot = searchIotInfoByIpStatus(remoteAddress.getAddress().getHostAddress(),
+                currentConfig.getStatus());
 
         if (disConnectIot.isPresent()) {
             IotInfo updated = disConnectIot.get();
@@ -95,9 +96,10 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
         ctx.close();
     }
 
-    private Optional<IotInfo> searchIotInfoByIp(String ip) {
+    private Optional<IotInfo> searchIotInfoByIpStatus(String ip, String status) {
         IotInfo search = new IotInfo();
         search.setIp(ip);
+        search.setStatus(status);
         return iotInfoRepository.findOne(Example.of(search));
     }
 
