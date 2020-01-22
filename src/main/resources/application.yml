@@ -24,6 +24,14 @@ spring:
       force: true
       charset: UTF-8
 
+  cache:
+    type: SIMPLE
+    cache-names:
+      - tcp_connection
+      - tcp_result
+      - business_result
+  
+
 logging:
 
   level:
