@@ -1,19 +1,22 @@
 package com.shaun.SerialPortClient.service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Set;
-import java.util.concurrent.ConcurrentMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.concurrent.ConcurrentMapCache;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import io.netty.channel.Channel;
+import net.sf.ehcache.Ehcache;
 
 @Service
 public class ChannelCacheService {
@@ -30,10 +33,17 @@ public class ChannelCacheService {
         return cacheManager.getCache("tcp_connection").get(key, Channel.class);
     }
 
-    public Set<Object> getCacheKeys() {
-        ConcurrentMapCache tcpConnections = (ConcurrentMapCache) cacheManager.getCache("tcp_connection");
-        ConcurrentMap<Object, Object> map = tcpConnections.getNativeCache();
-        return map.keySet();
+    @SuppressWarnings("unchecked")
+    public List<Object> getCacheKeys() {
+        Cache tcpConnections = cacheManager.getCache("tcp_connection");
+        Object map = tcpConnections.getNativeCache();
+        if (map instanceof ConcurrentHashMap) {
+            return new ArrayList<>(((Map<Object, Object>) map).keySet());
+        }
+        if (map instanceof Ehcache) {
+            return ((Ehcache) map).getKeys();
+        }
+        return null;
     }
 
     @CacheEvict(value = "tcp_connection", key = "#key")
@@ -49,10 +59,17 @@ public class ChannelCacheService {
         return cacheManager.getCache("tcp_result").get(key, String.class);
     }
 
-    public Set<Object> getCacheResultKeys() {
-        ConcurrentMapCache tcpConnections = (ConcurrentMapCache) cacheManager.getCache("tcp_result");
-        ConcurrentMap<Object, Object> map = tcpConnections.getNativeCache();
-        return map.keySet();
+    @SuppressWarnings("unchecked")
+    public List<Object> getCacheResultKeys() {
+        Cache tcpConnections = cacheManager.getCache("tcp_result");
+        Object map = tcpConnections.getNativeCache();
+        if (map instanceof ConcurrentHashMap) {
+            return new ArrayList<>(((Map<Object, Object>) map).keySet());
+        }
+        if (map instanceof Ehcache) {
+            return ((Ehcache) map).getKeys();
+        }
+        return null;
     }
 
     @CacheEvict(value = "tcp_result", key = "#key")
@@ -68,10 +85,17 @@ public class ChannelCacheService {
         return cacheManager.getCache("business_result").get(key, type);
     }
 
-    public Set<Object> getCacheBusinessResultKeys() {
-        ConcurrentMapCache tcpConnections = (ConcurrentMapCache) cacheManager.getCache("business_result");
-        ConcurrentMap<Object, Object> map = tcpConnections.getNativeCache();
-        return map.keySet();
+    @SuppressWarnings("unchecked")
+    public List<Object> getCacheBusinessResultKeys() {
+        Cache tcpConnections = cacheManager.getCache("business_result");
+        Object map = tcpConnections.getNativeCache();
+        if (map instanceof ConcurrentHashMap) {
+            return new ArrayList<>(((Map<Object, Object>) map).keySet());
+        }
+        if (map instanceof Ehcache) {
+            return ((Ehcache) map).getKeys();
+        }
+        return null;
     }
 
     @CacheEvict(value = "business_result", key = "#key")
@@ -82,7 +106,7 @@ public class ChannelCacheService {
 
         String[] param = tcpStatus.split(":");
         Assert.isTrue(4 == param.length,
-                "Cache Kye must be composed by 4 part, eg:{protocal}:{ip}:{port}:{timestamp}!");
+                "Cache Kye must be composed by 4 part, for example {protocal}:{ip}:{port}:{timestamp}!");
         String ip = param[1];
         String port = param[2];
         String timestamp = param[3];

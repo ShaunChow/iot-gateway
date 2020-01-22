@@ -25,7 +25,7 @@ spring:
       charset: UTF-8
 
   cache:
-    type: SIMPLE
+    type: EHCACHE
     cache-names:
       - tcp_connection
       - tcp_result
