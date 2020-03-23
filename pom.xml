@@ -63,6 +63,11 @@
             <artifactId>ehcache</artifactId>
         </dependency>
 
+   		<dependency>
+     		<groupId>com.github.ben-manes.caffeine</groupId>
+     		<artifactId>caffeine</artifactId>
+   		</dependency>
+
 		<!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
 		<dependency>
     		<groupId>com.google.guava</groupId>
@@ -92,7 +97,8 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-	</dependencies>
+ 
+ </dependencies>
 
 	<build>
 		<plugins>

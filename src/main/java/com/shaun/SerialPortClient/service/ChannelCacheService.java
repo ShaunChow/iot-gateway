@@ -37,11 +37,25 @@ public class ChannelCacheService {
     public List<Object> getCacheKeys() {
         Cache tcpConnections = cacheManager.getCache("tcp_connection");
         Object map = tcpConnections.getNativeCache();
+
+        // SIMPLE
         if (map instanceof ConcurrentHashMap) {
             return new ArrayList<>(((Map<Object, Object>) map).keySet());
         }
+
+        // EHCACHE
         if (map instanceof Ehcache) {
             return ((Ehcache) map).getKeys();
+        }
+
+        // CAFFEINE
+        if (map instanceof com.github.benmanes.caffeine.cache.Cache) {
+            return new ArrayList<>(
+                (
+                    (
+                        (com.github.benmanes.caffeine.cache.Cache<Object,Object>)map
+                    ).asMap()
+                ).keySet());
         }
         return null;
     }
@@ -63,11 +77,25 @@ public class ChannelCacheService {
     public List<Object> getCacheResultKeys() {
         Cache tcpConnections = cacheManager.getCache("tcp_result");
         Object map = tcpConnections.getNativeCache();
+
+        // SIMPLE
         if (map instanceof ConcurrentHashMap) {
             return new ArrayList<>(((Map<Object, Object>) map).keySet());
         }
+
+        // EHCACHE
         if (map instanceof Ehcache) {
             return ((Ehcache) map).getKeys();
+        }
+
+        // CAFFEINE
+        if (map instanceof com.github.benmanes.caffeine.cache.Cache) {
+            return new ArrayList<>(
+                (
+                    (
+                        (com.github.benmanes.caffeine.cache.Cache<Object,Object>)map
+                    ).asMap()
+                ).keySet());
         }
         return null;
     }
@@ -89,11 +117,25 @@ public class ChannelCacheService {
     public List<Object> getCacheBusinessResultKeys() {
         Cache tcpConnections = cacheManager.getCache("business_result");
         Object map = tcpConnections.getNativeCache();
+
+        // SIMPLE
         if (map instanceof ConcurrentHashMap) {
             return new ArrayList<>(((Map<Object, Object>) map).keySet());
         }
+
+        // EHCACHE
         if (map instanceof Ehcache) {
             return ((Ehcache) map).getKeys();
+        }
+
+        // CAFFEINE
+        if (map instanceof com.github.benmanes.caffeine.cache.Cache) {
+            return new ArrayList<>(
+                (
+                    (
+                        (com.github.benmanes.caffeine.cache.Cache<Object,Object>)map
+                    ).asMap()
+                ).keySet());
         }
         return null;
     }
