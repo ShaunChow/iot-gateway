@@ -92,7 +92,7 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        log.error("tcp exception,{}", cause);
+        log.warn("tcp exception", cause);
         ctx.close();
     }
 
